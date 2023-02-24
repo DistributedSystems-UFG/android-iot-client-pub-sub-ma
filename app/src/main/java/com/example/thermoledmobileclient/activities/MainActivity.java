@@ -1,4 +1,4 @@
-package com.example.thermoledmobileclient;
+package com.example.thermoledmobileclient.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,6 +13,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.thermoledmobileclient.R;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
@@ -20,10 +22,13 @@ import java.util.concurrent.TimeUnit;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+/*
 import io.grpc.examples.iotservice.IoTServiceGrpc;
 import io.grpc.examples.iotservice.LedMessage;
 import io.grpc.examples.iotservice.TemperatureReply;
 import io.grpc.examples.iotservice.TemperatureRequest;
+
+ */
 
 public class MainActivity extends AppCompatActivity {
     private TextView temperatureResultText;
@@ -67,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(String... params) {
-
+        /*
             String host = params[0];
             String portStr = params[1];
             String sensorName = params[2];
@@ -85,10 +90,13 @@ public class MainActivity extends AppCompatActivity {
                 pw.flush();
                 return String.format("Failed... : %n%s", sw);
             }
+        */
+            return "";
         }
 
         @Override
         protected void onPostExecute(String result) {
+            /*
             try {
                 channel.shutdown().awaitTermination(1, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
@@ -102,6 +110,8 @@ public class MainActivity extends AppCompatActivity {
             Button getTemperatureButton = (Button) activity.findViewById(R.id.getTempButton);
             temperatureResultText.setText(result);
             getTemperatureButton.setEnabled(true);
+
+             */
         }
     }
 
@@ -130,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(String... params) {
-
+/*
             String host = params[0];
             String portStr = params[1];
             String ledState = params[2];
@@ -148,10 +158,14 @@ public class MainActivity extends AppCompatActivity {
                 pw.flush();
                 return String.format("Failed... : %n%s", sw);
             }
+
+ */
+            return "";
         }
 
         @Override
         protected void onPostExecute(String result) {
+            /*
             try {
                 channel.shutdown().awaitTermination(1, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
@@ -168,6 +182,8 @@ public class MainActivity extends AppCompatActivity {
                 Button ledOffButton = (Button) activity.findViewById(R.id.ledOffButton);
                 ledOffButton.setEnabled(true);
             }
+
+             */
 
         }
     }

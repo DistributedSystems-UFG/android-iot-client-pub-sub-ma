@@ -1,11 +1,11 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "io.grpc.examples.iotservice";
-option java_outer_classname = "IoTServiceProto";
+option java_package = "io.grpc.examples.sensorservice";
+option java_outer_classname = "SenSorServiceProto";
 option objc_class_prefix = "TEMP";
 
-package sensor_service;
+package SensorService;
 
 service SensorService {
 
@@ -18,6 +18,8 @@ service SensorService {
   rpc AcionarLed (LedStatus) returns (LedStatus) {}
 
   rpc ListarLeds (LedStatus) returns (ListaLedStatus) {}
+
+  rpc AutenticarUsuario (ParamLogin) returns (Sessao) {}
 
 }
 
@@ -63,3 +65,12 @@ message ListaLedStatus {
 
 message EmptyMessage{}
 
+message ParamLogin{
+  string usuario = 1;
+  string senha = 2;
+}
+
+message Sessao {
+  string token = 1;
+  string funcionalidade = 2;
+}

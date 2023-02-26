@@ -50,7 +50,8 @@ public class LoginActivity extends AppCompatActivity {
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendAuthenticationRequest();
+                //sendAuthenticationRequest();
+                changeToLastFunctionalityUsed();
             }
         });
     }
@@ -67,7 +68,7 @@ public class LoginActivity extends AppCompatActivity {
     private void changeToLastFunctionalityUsed(){
         progressBar.setVisibility(View.GONE);
         //TODO: implementar metodo para decidir qual activitya acessar após o login
-        Intent intent = new Intent(this, SensorListActivity.class);
+        Intent intent = new Intent(this, DeviceListActivity.class);
         //String message = editText1.getText().toString() + " " + editText2.getText().toString();
         //intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);

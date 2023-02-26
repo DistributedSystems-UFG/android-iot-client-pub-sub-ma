@@ -12,7 +12,28 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ThermoLedMobileClient">
         <activity
-            android:name=".activities.SensorListActivity"
+            android:name=".SensorActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".SensorActiviy"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".ActuatorActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".activities.DeviceListActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"

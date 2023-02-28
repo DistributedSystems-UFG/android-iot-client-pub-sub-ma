@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.thermoledmobileclient.R;
 import com.example.thermoledmobileclient.models.Device;
@@ -27,11 +28,9 @@ import java.util.concurrent.TimeUnit;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Metadata;
-import io.grpc.examples.sensorservice.LedStatus;
-import io.grpc.examples.sensorservice.ListaLedStatus;
-import io.grpc.examples.sensorservice.ParamLogin;
-import io.grpc.examples.sensorservice.SensorServiceGrpc;
-import io.grpc.examples.sensorservice.Sessao;
+import io.grpc.examples.iotservice.LedStatus;
+import io.grpc.examples.iotservice.ListaLedStatus;
+import io.grpc.examples.iotservice.SensorServiceGrpc;
 import io.grpc.stub.MetadataUtils;
 
 public class ActuatorActivity extends AppCompatActivity {
@@ -55,10 +54,10 @@ public class ActuatorActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         String name = intent.getStringExtra("NOME_DISPOSITIVO");
-        String location = intent.getStringExtra("LOCALIZACAO_DISPOSITIVO");
-        String type = intent.getStringExtra("TIPO_DISPOSITIVO");
+        String location = intent.getStringExtra("LOCALIZACAO");
+        int type = intent.getIntExtra("TIPO_DISPOSITIVO", 0);
+        dispositivo = new Device(name,location,type);
 
-        dispositivo = new Device(name,location,Integer.parseInt(type));
         String titulo= dispositivo.getLocation() + ": " + dispositivo.getName();
         tituloAtuador.setText(titulo);
 
@@ -77,26 +76,36 @@ public class ActuatorActivity extends AppCompatActivity {
     }
 
     private void consultarEstadoAtuador() {
-        new GrpcTaskConsultaEstadoAtuador(this).execute(dispositivo.getLocation(), dispositivo.getName());
+        //if(ultimoEstadoAtuador != 0) ultimoEstadoAtuador = 0;
+        //aplicarEstadoAoAtuador(Integer.toString(ultimoEstadoAtuador));
+        new GrpcTaskConsultaEstadoAtuador(this).execute(dispositivo.getLocation(), dispositivo.getName(), definirStringDeFuncionalidade());
     }
 
     private void alterarEstadoAtuador(int novoEstado) {
-        new GrpcTaskAlterarEstadoAtuador(this).execute(dispositivo.getLocation(), dispositivo.getName(), Integer.toString(novoEstado));
+        //aplicarEstadoAoAtuador(Integer.toString(novoEstado));
+        new GrpcTaskAlterarEstadoAtuador(this).execute(dispositivo.getLocation(), dispositivo.getName(), definirStringDeFuncionalidade(), Integer.toString(novoEstado));
+    }
+
+    private String definirStringDeFuncionalidade(){
+        return "atuador|"+dispositivo.getLocation()+"|"+dispositivo.getName()+"|"+dispositivo.getType();
     }
 
     @SuppressLint("SetTextI18n")
-    public void aplicarEstadoAoAtuador(int estado) {
-        if (estado == 1) {
-            btnAtuador.setBackgroundColor(getResources().getColor(R.color.red));
-            btnAtuador.setText("Turn Off");
-            imagenAtuador.setImageResource(R.drawable.ic_baseline_lightbulb_240_on);
-        } else {
-            btnAtuador.setBackgroundColor(getResources().getColor(R.color.green));
-            btnAtuador.setText("Turn On");
-            imagenAtuador.setImageResource(R.drawable.ic_baseline_lightbulb_240_off);
+    public void aplicarEstadoAoAtuador(String estado) {
+        try {
+            if (estado.equals("1")) {
+                btnAtuador.setBackgroundColor(getResources().getColor(R.color.red));
+                btnAtuador.setText("Desligar");
+                imagenAtuador.setImageResource(R.drawable.ic_baseline_lightbulb_240_on);
+            } else if (estado.equals("0")) {
+                btnAtuador.setBackgroundColor(getResources().getColor(R.color.green));
+                btnAtuador.setText("Ligar");
+                imagenAtuador.setImageResource(R.drawable.ic_baseline_lightbulb_240_off);
+            }
+            ultimoEstadoAtuador = Integer.parseInt(estado);
+        }catch (Exception e){
+            Toast.makeText(this, "Erro na requisição", Toast.LENGTH_LONG).show();
         }
-
-        ultimoEstadoAtuador = estado;
     }
 
     private static class GrpcTaskConsultaEstadoAtuador extends AsyncTask<String, Void, String> {
@@ -112,11 +121,12 @@ public class ActuatorActivity extends AppCompatActivity {
         protected String doInBackground(String... params) {
             String localizacao = params[0];
             String nomeDispositivo = params[1];
+            String funcionalidade = params[2];
 
             //Adicionando os headers da requisicao
             Metadata metadata = new Metadata();
             metadata.put(Metadata.Key.of("token", ASCII_STRING_MARSHALLER), SessaoClient.getToken());
-            metadata.put(Metadata.Key.of("funcionalidade", ASCII_STRING_MARSHALLER), "atuador|" + localizacao + "|" + nomeDispositivo);
+            metadata.put(Metadata.Key.of("funcionalidade", ASCII_STRING_MARSHALLER), funcionalidade);
 
             try {
                 channel = ManagedChannelBuilder.forAddress(GrpcConfig.host, GrpcConfig.port).usePlaintext().build();
@@ -148,7 +158,7 @@ public class ActuatorActivity extends AppCompatActivity {
                 return;
             }
             if (activity instanceof ActuatorActivity) {
-                ((ActuatorActivity) activity).aplicarEstadoAoAtuador(Integer.parseInt(result));
+                ((ActuatorActivity) activity).aplicarEstadoAoAtuador(result);
             }
         }
     }
@@ -166,16 +176,18 @@ public class ActuatorActivity extends AppCompatActivity {
         protected String doInBackground(String... params) {
             String localizacao = params[0];
             String nomeDispositivo = params[1];
+            String funcionalidade = params[2];
+            int estado = Integer.parseInt(params[3]);
 
             //Adicionando os headers da requisicao
             Metadata metadata = new Metadata();
             metadata.put(Metadata.Key.of("token", ASCII_STRING_MARSHALLER), SessaoClient.getToken());
-            metadata.put(Metadata.Key.of("funcionalidade", ASCII_STRING_MARSHALLER), "atuador|" + localizacao + "|" + nomeDispositivo);
+            metadata.put(Metadata.Key.of("funcionalidade", ASCII_STRING_MARSHALLER), funcionalidade);
 
             try {
                 channel = ManagedChannelBuilder.forAddress(GrpcConfig.host, GrpcConfig.port).usePlaintext().build();
                 SensorServiceGrpc.SensorServiceBlockingStub stub = SensorServiceGrpc.newBlockingStub(channel);
-                LedStatus ledStatus = LedStatus.newBuilder().setLocalizacao(localizacao).setNomeDispositivo(nomeDispositivo).build();
+                LedStatus ledStatus = LedStatus.newBuilder().setLocalizacao(localizacao).setNomeDispositivo(nomeDispositivo).setEstado(estado).build();
                 stub = MetadataUtils.attachHeaders(stub, metadata);
                 LedStatus resposta = stub.acionarLed(ledStatus);
 
@@ -202,7 +214,7 @@ public class ActuatorActivity extends AppCompatActivity {
                 return;
             }
             if (activity instanceof ActuatorActivity) {
-                ((ActuatorActivity) activity).aplicarEstadoAoAtuador(Integer.parseInt(result));
+                ((ActuatorActivity) activity).aplicarEstadoAoAtuador(result);
             }
         }
     }

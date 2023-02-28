@@ -1,11 +1,11 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "io.grpc.examples.sensorservice";
-option java_outer_classname = "SenSorServiceProto";
+option java_package = "io.grpc.examples.iotservice";
+option java_outer_classname = "IoTServiceProto";
 option objc_class_prefix = "TEMP";
 
-package SensorService;
+package sensor_service;
 
 service SensorService {
 

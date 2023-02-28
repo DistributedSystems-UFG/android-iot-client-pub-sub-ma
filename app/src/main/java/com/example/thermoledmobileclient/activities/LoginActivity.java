@@ -13,8 +13,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.example.thermoledmobileclient.R;
+import com.example.thermoledmobileclient.models.GrpcConfig;
 import com.example.thermoledmobileclient.models.SessaoClient;
 
 import java.io.PrintWriter;
@@ -24,9 +26,9 @@ import java.util.concurrent.TimeUnit;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.examples.sensorservice.ParamLogin;
-import io.grpc.examples.sensorservice.SensorServiceGrpc;
-import io.grpc.examples.sensorservice.Sessao;
+import io.grpc.examples.iotservice.ParamLogin;
+import io.grpc.examples.iotservice.SensorServiceGrpc;
+import io.grpc.examples.iotservice.Sessao;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String HOST = "146.148.42.190";
@@ -50,8 +52,13 @@ public class LoginActivity extends AppCompatActivity {
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //sendAuthenticationRequest();
+                /*
                 changeToLastFunctionalityUsed();
+                SessaoClient.setToken("asdqwdas");
+                SessaoClient.setFuncionalidade("home");
+                 */
+
+                sendAuthenticationRequest();
             }
         });
     }
@@ -62,24 +69,58 @@ public class LoginActivity extends AppCompatActivity {
         loginBtn.setEnabled(false);
         progressBar.setVisibility(View.VISIBLE);
 
-        new GrpcTask(this).execute(userEdt.getText().toString(), passwordEdt.getText().toString());
+        new GrpcTaskAutenticar(this).execute(userEdt.getText().toString(), passwordEdt.getText().toString());
     }
 
-    private void changeToLastFunctionalityUsed(){
+    private void decidirProximaDelaComBaseNaUltimaAcessada(String result){
         progressBar.setVisibility(View.GONE);
-        //TODO: implementar metodo para decidir qual activitya acessar após o login
+        loginBtn.setEnabled(true);
+        if(result.contains("Failed")){
+            Toast.makeText(this, "Erro no login", Toast.LENGTH_LONG).show();
+            return;
+        }
+        String[] dados = SessaoClient.getFuncionalidade().split("\\|");
+        switch (dados[0].toLowerCase()){
+            case "home":
+            case "listardispositivos":
+                abrirActivityListagemDispositivos();
+                break;
+            case "atuador":
+                abrirActivityDeAtuador(dados[1], dados[2], Integer.parseInt(dados[3]));
+                break;
+            case "sensor":
+                abrirActivityDeSensor(dados[1], dados[2], Integer.parseInt(dados[3]));
+                break;
+        }
+    }
+
+    private void abrirActivityListagemDispositivos(){
         Intent intent = new Intent(this, DeviceListActivity.class);
-        //String message = editText1.getText().toString() + " " + editText2.getText().toString();
-        //intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);
     }
 
-    private static class GrpcTask extends AsyncTask<String, Void, String> {
+    private void abrirActivityDeAtuador(String localizacao, String nome, int tipo) {
+        Intent intent = new Intent(this, ActuatorActivity.class);
+        intent.putExtra("NOME_DISPOSITIVO", nome);
+        intent.putExtra("LOCALIZACAO", localizacao);
+        intent.putExtra("TIPO_DISPOSITIVO", tipo);
+        startActivity(intent);
+    }
+
+    private void abrirActivityDeSensor(String localizacao, String nome, int tipo) {
+        Intent intent = new Intent(this, SensorActivity.class);
+        intent.putExtra("NOME_DISPOSITIVO", nome);
+        intent.putExtra("LOCALIZACAO", localizacao);
+        intent.putExtra("TIPO_DISPOSITIVO", tipo);
+        startActivity(intent);
+    }
+
+    private static class GrpcTaskAutenticar extends AsyncTask<String, Void, String> {
         private final WeakReference<Activity> activityReference;
         private ManagedChannel channel;
 
 
-        private GrpcTask(Activity activity) {
+        private GrpcTaskAutenticar(Activity activity) {
             this.activityReference = new WeakReference<Activity>(activity);
         }
 
@@ -89,11 +130,9 @@ public class LoginActivity extends AppCompatActivity {
             String password = params[1];
 
             try {
-                channel = ManagedChannelBuilder.forAddress(HOST, PORT).usePlaintext().build();
+                channel = ManagedChannelBuilder.forAddress(GrpcConfig.host, GrpcConfig.port).usePlaintext().build();
                 SensorServiceGrpc.SensorServiceBlockingStub stub = SensorServiceGrpc.newBlockingStub(channel);
                 ParamLogin paramLogin = ParamLogin.newBuilder().setUsuario(username).setSenha(password).build();
-                //stub = MetadataUtils.attachHeaders(stub, new Metadata());
-                //stub.withInterceptors(MetadataUtils.newAttachHeadersInterceptor())
                 Sessao resposta = stub.autenticarUsuario(paramLogin);
 
                 SessaoClient.setToken(resposta.getToken());
@@ -106,6 +145,7 @@ public class LoginActivity extends AppCompatActivity {
                 PrintWriter pw = new PrintWriter(sw);
                 e.printStackTrace(pw);
                 pw.flush();
+
                 return String.format("Failed... : %n%s", sw);
             }
         }
@@ -122,7 +162,7 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
             if (activity instanceof LoginActivity) {
-                ((LoginActivity) activity).changeToLastFunctionalityUsed();
+                ((LoginActivity) activity).decidirProximaDelaComBaseNaUltimaAcessada(result);
             }
         }
     }

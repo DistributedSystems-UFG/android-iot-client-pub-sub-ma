@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -32,6 +33,7 @@ import io.grpc.Metadata;
 import io.grpc.examples.iotservice.Dado;
 import io.grpc.examples.iotservice.Parametros;
 import io.grpc.examples.iotservice.SensorServiceGrpc;
+import io.grpc.examples.iotservice.Sessao;
 import io.grpc.stub.MetadataUtils;
 
 public class SensorActivity extends AppCompatActivity {
@@ -39,6 +41,9 @@ public class SensorActivity extends AppCompatActivity {
     private Device dispositivo;
     TextView tvDadoSensor, tvDataMedicao, tvUnidadeMedida;
     Button btnAtualizar;
+    private String funcionalidadeAutal;
+    private Handler handler;
+    private Runnable runnable;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -73,6 +78,15 @@ public class SensorActivity extends AppCompatActivity {
         TextView tvSensorTitulo = findViewById(R.id.tv_sensor_titulo);
         String titulo = dispositivo.getLocation() + ": " + dispositivo.getName();
         tvSensorTitulo.setText(StringUtils.capitalizeEachWord(titulo));
+
+        handler = new Handler();
+        runnable = () -> consultarSessao();
+        handler.postDelayed(runnable, 15000); // inicializa a consulta após 15 segundos
+
+    }
+
+    private void consultarSessao(){
+        new GrpcTaskConsultarSessao(this).execute(SessaoClient.getToken());
     }
 
     private void consultarDadoSensor() {
@@ -81,7 +95,8 @@ public class SensorActivity extends AppCompatActivity {
     }
 
     private String definirStringDeFuncionalidade(){
-        return "sensor|"+dispositivo.getLocation()+"|"+dispositivo.getName()+"|"+dispositivo.getType();
+        funcionalidadeAutal = "sensor|"+dispositivo.getLocation()+"|"+dispositivo.getName()+"|"+dispositivo.getType();
+        return funcionalidadeAutal;
     }
 
     @SuppressLint("SetTextI18n")
@@ -97,11 +112,6 @@ public class SensorActivity extends AppCompatActivity {
             Toast.makeText(this, "Erro na requisição", Toast.LENGTH_LONG).show();
         }
 
-    }
-
-    private void abrirActivityListagemDispositivos(){
-        Intent intent = new Intent(this, DeviceListActivity.class);
-        startActivity(intent);
     }
 
     @SuppressLint("SetTextI18n")
@@ -174,5 +184,103 @@ public class SensorActivity extends AppCompatActivity {
                 ((SensorActivity) activity).aplicarDadoSensorNaTela(result);
             }
         }
+    }
+
+    private static class GrpcTaskConsultarSessao extends AsyncTask<String, Void, String> {
+        private final WeakReference<Activity> activityReference;
+        private ManagedChannel channel;
+
+
+        private GrpcTaskConsultarSessao(Activity activity) {
+            this.activityReference = new WeakReference<Activity>(activity);
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            String token = params[0];
+
+            try {
+                channel = ManagedChannelBuilder.forAddress(GrpcConfig.host, GrpcConfig.port).usePlaintext().build();
+                SensorServiceGrpc.SensorServiceBlockingStub stub = SensorServiceGrpc.newBlockingStub(channel);
+                Sessao sessao = Sessao.newBuilder().setToken(token).build();
+                Sessao resposta = stub.consultarFuncionalidade(sessao);
+
+                return resposta.getToken();
+
+            } catch (Exception e){
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                e.printStackTrace(pw);
+                pw.flush();
+                return String.format("Failed... : %n%s", sw);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            try {
+                channel.shutdown().awaitTermination(1, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            Activity activity = activityReference.get();
+            if (activity == null) {
+                return;
+            }
+            if (activity instanceof SensorActivity) {
+                ((SensorActivity) activity).atualizarparaFuncionalidadeSeDiferente(result);
+            }
+        }
+    }
+
+    private void atualizarparaFuncionalidadeSeDiferente(String result){
+
+        if(result.contains("Failed")){
+            Toast.makeText(this, "Erro no login", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if(!StringUtils.isEmpty(funcionalidadeAutal) && !result.equals(funcionalidadeAutal)){
+            String[] dados = SessaoClient.getFuncionalidade().split("\\|");
+            switch (dados[0].toLowerCase()){
+                case "home":
+                case "listardispositivos":
+                    abrirActivityListagemDispositivos();
+                    break;
+                case "atuador":
+                    abrirActivityDeAtuador(dados[1], dados[2], Integer.parseInt(dados[3]));
+                    break;
+                case "sensor":
+                    abrirActivityDeSensor(dados[1], dados[2], Integer.parseInt(dados[3]));
+                    break;
+            }
+        }
+    }
+
+    private void abrirActivityListagemDispositivos(){
+        Intent intent = new Intent(this, DeviceListActivity.class);
+        startActivity(intent);
+    }
+
+    private void abrirActivityDeAtuador(String localizacao, String nome, int tipo) {
+        Intent intent = new Intent(this, ActuatorActivity.class);
+        intent.putExtra("NOME_DISPOSITIVO", nome);
+        intent.putExtra("LOCALIZACAO", localizacao);
+        intent.putExtra("TIPO_DISPOSITIVO", tipo);
+        startActivity(intent);
+    }
+
+    private void abrirActivityDeSensor(String localizacao, String nome, int tipo) {
+        Intent intent = new Intent(this, SensorActivity.class);
+        intent.putExtra("NOME_DISPOSITIVO", nome);
+        intent.putExtra("LOCALIZACAO", localizacao);
+        intent.putExtra("TIPO_DISPOSITIVO", tipo);
+        startActivity(intent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacks(runnable); // remove a tarefa quando a activity é destruída
     }
 }

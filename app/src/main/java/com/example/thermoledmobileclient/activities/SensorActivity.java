@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +19,7 @@ import com.example.thermoledmobileclient.R;
 import com.example.thermoledmobileclient.models.Device;
 import com.example.thermoledmobileclient.models.GrpcConfig;
 import com.example.thermoledmobileclient.models.SessaoClient;
+import com.example.thermoledmobileclient.models.StringUtils;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -60,13 +62,17 @@ public class SensorActivity extends AppCompatActivity {
 
         consultarDadoSensor();
 
-        btnAtualizar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                btnAtualizar.setEnabled(false);
-                consultarDadoSensor();
-            }
+        btnAtualizar.setOnClickListener(v -> {
+            btnAtualizar.setEnabled(false);
+            consultarDadoSensor();
         });
+
+        ImageButton btnVoltar = findViewById(R.id.btn_home_sensores);
+        btnVoltar.setOnClickListener(v -> abrirActivityListagemDispositivos());
+
+        TextView tvSensorTitulo = findViewById(R.id.tv_sensor_titulo);
+        String titulo = dispositivo.getLocation() + ": " + dispositivo.getName();
+        tvSensorTitulo.setText(StringUtils.capitalizeEachWord(titulo));
     }
 
     private void consultarDadoSensor() {
@@ -91,6 +97,11 @@ public class SensorActivity extends AppCompatActivity {
             Toast.makeText(this, "Erro na requisição", Toast.LENGTH_LONG).show();
         }
 
+    }
+
+    private void abrirActivityListagemDispositivos(){
+        Intent intent = new Intent(this, DeviceListActivity.class);
+        startActivity(intent);
     }
 
     @SuppressLint("SetTextI18n")

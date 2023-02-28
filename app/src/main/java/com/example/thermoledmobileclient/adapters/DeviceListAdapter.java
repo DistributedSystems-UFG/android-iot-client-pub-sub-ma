@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.thermoledmobileclient.R;
 import com.example.thermoledmobileclient.interfaces.RecyclerViewInterface;
 import com.example.thermoledmobileclient.models.Device;
+import com.example.thermoledmobileclient.models.StringUtils;
 import com.example.thermoledmobileclient.viewholders.DeviceItemViewHolder;
 
 import java.util.List;
@@ -38,8 +39,8 @@ public class DeviceListAdapter extends RecyclerView.Adapter<DeviceItemViewHolder
     @Override
     public void onBindViewHolder(@NonNull DeviceItemViewHolder holder, int position) {
         Device device = deviceList.get(position);
-        holder.deviceName.setText(device.getName());
-        holder.deviceLocation.setText(device.getLocation());
+        holder.deviceName.setText(StringUtils.capitalizeEachWord(device.getName()));
+        holder.deviceLocation.setText(StringUtils.capitalizeEachWord(device.getLocation()));
     }
 
     @Override

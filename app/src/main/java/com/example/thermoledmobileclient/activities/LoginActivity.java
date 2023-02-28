@@ -31,8 +31,6 @@ import io.grpc.examples.iotservice.SensorServiceGrpc;
 import io.grpc.examples.iotservice.Sessao;
 
 public class LoginActivity extends AppCompatActivity {
-    private static final String HOST = "146.148.42.190";
-    private static final int PORT = 50051;
     private EditText userEdt;
     private EditText passwordEdt;
     private Button loginBtn;

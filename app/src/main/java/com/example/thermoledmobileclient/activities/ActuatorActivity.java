@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,6 +20,7 @@ import com.example.thermoledmobileclient.R;
 import com.example.thermoledmobileclient.models.Device;
 import com.example.thermoledmobileclient.models.GrpcConfig;
 import com.example.thermoledmobileclient.models.SessaoClient;
+import com.example.thermoledmobileclient.models.StringUtils;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -59,20 +61,20 @@ public class ActuatorActivity extends AppCompatActivity {
         dispositivo = new Device(name,location,type);
 
         String titulo= dispositivo.getLocation() + ": " + dispositivo.getName();
-        tituloAtuador.setText(titulo);
+        tituloAtuador.setText(StringUtils.capitalizeEachWord(titulo));
 
         consultarEstadoAtuador();
 
-        btnAtuador.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (ultimoEstadoAtuador == 1) {
-                    alterarEstadoAtuador(0);
-                } else {
-                    alterarEstadoAtuador(1);
-                }
+        btnAtuador.setOnClickListener(v -> {
+            if (ultimoEstadoAtuador == 1) {
+                alterarEstadoAtuador(0);
+            } else {
+                alterarEstadoAtuador(1);
             }
         });
+
+        ImageButton btnVoltar = findViewById(R.id.btn_home_atuadores);
+        btnVoltar.setOnClickListener(v -> abrirActivityListagemDispositivos());
     }
 
     private void consultarEstadoAtuador() {
@@ -106,6 +108,11 @@ public class ActuatorActivity extends AppCompatActivity {
         }catch (Exception e){
             Toast.makeText(this, "Erro na requisição", Toast.LENGTH_LONG).show();
         }
+    }
+
+    private void abrirActivityListagemDispositivos(){
+        Intent intent = new Intent(this, DeviceListActivity.class);
+        startActivity(intent);
     }
 
     private static class GrpcTaskConsultaEstadoAtuador extends AsyncTask<String, Void, String> {

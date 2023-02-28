@@ -6,6 +6,44 @@
     android:layout_height="match_parent"
     tools:context=".activities.LoginActivity">
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="136dp"
+        android:src="@drawable/bihomesmile_100"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="sans-serif-black"
+        android:text="My"
+        android:textColor="@color/black"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toStartOf="@+id/textView"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="136dp"
+        android:fontFamily="sans-serif-black"
+        android:paddingHorizontal="5dp"
+        android:text="Home"
+        android:textColor="@color/verde_app"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
     <EditText
         android:id="@+id/et_user"
         android:layout_width="250dp"
@@ -44,7 +82,8 @@
         android:text="@string/login"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_password" />
+        app:layout_constraintTop_toBottomOf="@+id/et_password"
+        android:backgroundTint="@color/verde_app"/>
 
     <ProgressBar
         android:id="@+id/progress_bar_login"

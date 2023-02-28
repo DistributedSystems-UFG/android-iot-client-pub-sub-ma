@@ -4,16 +4,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.example.thermoledmobileclient.R;
 import com.example.thermoledmobileclient.adapters.DeviceListAdapter;
+import com.example.thermoledmobileclient.interfaces.RecyclerViewInterface;
 import com.example.thermoledmobileclient.models.Device;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class DeviceListActivity extends AppCompatActivity {
+public class DeviceListActivity extends AppCompatActivity implements RecyclerViewInterface {
 
     ArrayList<Device> deviceList;
 
@@ -25,7 +26,7 @@ public class DeviceListActivity extends AppCompatActivity {
         RecyclerView recyclerViewDeviceList = findViewById(R.id.devices_recycler_view);
         mockDeviceList();
         recyclerViewDeviceList.setLayoutManager(new LinearLayoutManager(this));
-        recyclerViewDeviceList.setAdapter(new DeviceListAdapter(this, deviceList));
+        recyclerViewDeviceList.setAdapter(new DeviceListAdapter(this, this, deviceList));
     }
 
     private void mockDeviceList() {
@@ -39,5 +40,14 @@ public class DeviceListActivity extends AppCompatActivity {
         deviceList.add(new Device("Lampada", "Quarto", 1));
         deviceList.add(new Device("Abajur", "Quarto", 1));
         deviceList.add(new Device("Temperatura", "Quarto", 2));
+    }
+
+    @Override
+    public void onRecyclerViewItemClick(int position) {
+        Intent intent = new Intent(DeviceListActivity.this, ActuatorActivity.class);
+        intent.putExtra("NOME_DISPOSITIVO", deviceList.get(position).getName());
+        intent.putExtra("LOCALIZACAO", deviceList.get(position).getLocation());
+        intent.putExtra("TIPO_DISPOSITIVO", Integer.toString(deviceList.get(position).getType()));
+        startActivity(intent);
     }
 }

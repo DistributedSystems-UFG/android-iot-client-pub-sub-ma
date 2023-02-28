@@ -10,28 +10,42 @@
         android:id="@+id/tv_data_sensor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="125dp"
         android:layout_marginTop="200dp"
         android:textColor="#424040"
-        android:textSize="125sp"
+        android:textSize="110sp"
         android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="35" />
+        tools:text="35000" />
 
     <TextView
         android:id="@+id/tv_data_metric"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#424040"
-        android:textSize="50sp"
-        android:textStyle="bold"
         android:layout_marginBottom="25dp"
+        android:textColor="#424040"
+        android:textSize="40sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/tv_data_sensor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/tv_data_sensor"
-        tools:text="°C" />
+        tools:text="lm"
+        android:layout_marginEnd="15dp"/>
+
+    <TextView
+        android:id="@+id/tv_data_atualizacao"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="#DD7575"
+        android:layout_marginVertical="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/bt_refresh_data"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_data_sensor"
+        tools:text="*Ultima atualização: 01/02/2023 23:52" />
 
     <Button
         android:id="@+id/bt_refresh_data"
@@ -46,6 +60,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_data_sensor"
         />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

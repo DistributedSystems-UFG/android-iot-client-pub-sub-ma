@@ -6,13 +6,29 @@
     android:layout_height="match_parent"
     tools:context=".activities.ActuatorActivity">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="15dp"
+        android:layout_marginTop="40dp"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/iv_lightbulb"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.781"
+        tools:text="Lampada Sala"
+        android:id="@+id/tv_atuador_titulo"/>
+
     <ImageView
         android:id="@+id/iv_lightbulb"
-        android:layout_width="180dp"
+        android:layout_width="240dp"
         android:layout_height="240dp"
         android:layout_centerVertical="true"
         android:layout_marginTop="200dp"
-        android:background="@drawable/ic_baseline_lightbulb_240"
+        android:src="@drawable/ic_baseline_lightbulb_240_on"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,6 +42,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/iv_lightbulb"
         android:layout_marginTop="15dp"
-        android:text="ON/OFF"/>
+        tools:text="ON/OFF"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

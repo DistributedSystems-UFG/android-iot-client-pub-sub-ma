@@ -2,12 +2,14 @@ package com.example.thermoledmobileclient.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.thermoledmobileclient.R;
+import com.example.thermoledmobileclient.interfaces.RecyclerViewInterface;
 import com.example.thermoledmobileclient.models.Device;
 import com.example.thermoledmobileclient.viewholders.DeviceItemViewHolder;
 
@@ -15,10 +17,12 @@ import java.util.List;
 
 public class DeviceListAdapter extends RecyclerView.Adapter<DeviceItemViewHolder> {
 
-    Context context;
-    List<Device> deviceList;
+    private final RecyclerViewInterface recyclerViewInterface;
+    public Context context;
+    public List<Device> deviceList;
 
-    public DeviceListAdapter(Context context, List<Device> devices) {
+    public DeviceListAdapter(RecyclerViewInterface recyclerViewInterface, Context context, List<Device> devices) {
+        this.recyclerViewInterface = recyclerViewInterface;
         this.context = context;
         this.deviceList = devices;
     }
@@ -26,7 +30,9 @@ public class DeviceListAdapter extends RecyclerView.Adapter<DeviceItemViewHolder
     @NonNull
     @Override
     public DeviceItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new DeviceItemViewHolder(LayoutInflater.from(context).inflate(R.layout.device_item_view,parent,false));
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.device_item_view, parent, false);
+        return new DeviceItemViewHolder(view, recyclerViewInterface);
     }
 
     @Override
